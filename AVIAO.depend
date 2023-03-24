@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1679616825 source:c:\users\aluno\desktop\aviao\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
