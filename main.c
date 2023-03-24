@@ -93,15 +93,57 @@ void zerar(TipoFila *fila){
     criar(fila);
 }
 
-void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar){
-    srand(time(NULL));
+void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar, int *id){
+
     TipoAviao aviao;
-    int id;
+
     int prioridade;
     int emergencia;
     int aux=1;
+    int sorteio = rand() % 3;
+    printf("\nSorteio:%d - ID:%d\n",sorteio,*id);
+    for(int i = 0; i < sorteio; i++){
 
-    do{
+        prioridade = 2;
+        emergencia = rand()%12;
+
+        if (emergencia > 9){
+            prioridade = 1;
+        }
+        if(*id % 2 == 0 ){
+            if(verificarID(*filaDecolar, id) == 0){
+                aviao.id = *id;
+                aviao.prioridade = prioridade;
+                enfileirar(filaDecolar, aviao);
+                *id = *id + 1;
+            }
+        }
+
+    }
+
+    sorteio = rand() % 3;
+    printf("\nSorteio:%d - ID:%d\n",sorteio,*id);
+    for(int i = 0; i < sorteio; i++){
+        prioridade = 2;
+        emergencia = rand()%12;
+
+        if (emergencia > 9){
+            prioridade = 1;
+        }
+        if(*id % 2 != 0 ){
+            if(verificarID(*filaPouso, id) == 0){
+                aviao.id = *id;
+                aviao.prioridade = prioridade;
+                enfileirar(filaPouso, aviao);
+                *id = *id + 1;
+
+            }
+
+        }
+    }
+
+
+ /*   do{
         id = rand()%50;
         prioridade = 2;
         emergencia = rand()%12;
@@ -115,19 +157,19 @@ void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar){
                 aviao.id = id;
                 aviao.prioridade = prioridade;
                 enfileirar(filaDecolar, aviao);
-                aux++;
+                aux1++;
             }
         }else{
             if(verificarID(*filaPouso, id) == 0){
             aviao.id = id;
             aviao.prioridade = prioridade;
             enfileirar(filaPouso, aviao);
-            aux++;
+            aux2++;
             }
         }
 
-    }while(aux <= 20);
-
+    }while(aux1 <= 3 && aux2 <= 3);
+*/
     }
 
 int main(){
@@ -139,11 +181,20 @@ int main(){
 
     criar(&filaDecolar);
     criar(&filaPouso);
+    int id = 1;
+    //CadastroLote(&filaPouso, &filaDecolar);
+    int i = 0;
+    do{
+        printf("insrira");
+        scanf("%d", &i);
+        if(i == 1){
+            CadastroLote(&filaPouso, &filaDecolar, &id);
+            imprimir(filaPouso);
+            printf("\n-----------------------------------------------\n");
+            imprimir(filaDecolar);
+        }
+    }while(i!=2);
 
-    CadastroLote(&filaPouso, &filaDecolar);
-    imprimir(filaPouso);
-    printf("\n-----------------------------------------------\n");
-    imprimir(filaDecolar);
 
 
 
