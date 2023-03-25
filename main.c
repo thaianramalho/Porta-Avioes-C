@@ -24,9 +24,6 @@ void criar(TipoFila *fila){
 }
 
 void enfileirar(TipoFila *fila, TipoAviao aviao){
-    if(verificarID(*fila, aviao.id)==1){
-        printf("O id do aviao ja esta na fila");
-    }else{
         apontador aux = fila->primeiro;
         while((aux->prox!=NULL) && (aux->prox->aviao.prioridade <= aviao.prioridade)) {
             aux = aux->prox;
@@ -43,8 +40,8 @@ void enfileirar(TipoFila *fila, TipoAviao aviao){
             novo->aviao = aviao;
         }
 
-    }
 }
+
 
 apontador* desenfileirar(TipoFila *fila){
     apontador aux = fila->primeiro->prox;
@@ -74,8 +71,8 @@ int buscar(TipoFila fila, int id){
 int verificarID(TipoFila fila, int id){
     apontador aux;
     aux = fila.primeiro->prox;
-    while(aux!=NULL){
-        if(aux->aviao.id == id){
+    while (aux != NULL) {
+        if (aux->aviao.id == id) {
             return 1;
         }
         aux = aux->prox;
@@ -94,49 +91,57 @@ void zerar(TipoFila *fila){
 }
 
 void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar){
-
     TipoAviao aviao;
-    int id = 0;
+    int idImpar = 1;
+    int idPar = 2;
     int prioridade;
     int emergencia;
-    int aux=1;
+
+
     int sorteio = rand() % 3;
-    printf("\nSorteio:%d - ID:%d\n",sorteio,id);
+    printf("Fila de pouso:\n");
     for(int i = 0; i < sorteio; i++){
-        id = 2;
         prioridade = 2;
-        emergencia = rand()%12;
+        emergencia = rand() % 12;
 
         if (emergencia > 9){
             prioridade = 1;
         }
-            if(verificarID(*filaDecolar, id) == 0){
-                aviao.id = id;
-                aviao.prioridade = prioridade;
-                enfileirar(filaDecolar, aviao);
-                id = id + 2;
-            }
 
+        while (verificarID(*filaPouso, idImpar)) {
+            idImpar += 2;
+        }
+    printf("Sorteio:%d --- ID:%d\n\n",sorteio,idImpar);
+
+        aviao.id = idImpar; // ID da fila de pouso sempre ímpar
+        aviao.prioridade = prioridade;
+        enfileirar(filaPouso, aviao);
+        idImpar += 2; // incrementa o ID após a atribuição
     }
 
     sorteio = rand() % 3;
-    printf("\nSorteio:%d - ID:%d\n",sorteio,id);
+    printf("Fila de decolagem:\n");
     for(int i = 0; i < sorteio; i++){
         prioridade = 2;
-        emergencia = rand()%12;
-        id = 1;
+        emergencia = rand() % 12;
+
         if (emergencia > 9){
             prioridade = 1;
         }
-            if(verificarID(*filaPouso, id) == 0){
-                aviao.id = id;
-                aviao.prioridade = prioridade;
-                enfileirar(filaPouso, aviao);
-                id = id + 2;
 
-
+        while (verificarID(*filaDecolar, idPar)) {
+            idPar += 2;
         }
+    printf("Sorteio:%d --- ID:%d\n\n",sorteio,idPar);
+
+        aviao.id = idPar; // ID da fila de decolagem sempre par
+        aviao.prioridade = prioridade;
+        enfileirar(filaDecolar, aviao);
+        idPar += 2; // incrementa o ID após a atribuição
     }
+}
+
+
 
 
  /*   do{
@@ -166,7 +171,6 @@ void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar){
 
     }while(aux1 <= 3 && aux2 <= 3);
 */
-    }
 
 int main(){
     srand(time(NULL));
@@ -181,12 +185,12 @@ int main(){
     //CadastroLote(&filaPouso, &filaDecolar);
     int i = 0;
     do{
-        printf("insrira");
+        printf("Aperte o numero 1 para inserir na fila. 2 para sair.\n");
         scanf("%d", &i);
         if(i == 1){
             CadastroLote(&filaPouso, &filaDecolar);
             imprimir(filaPouso);
-            printf("\n-----------------------------------------------\n");
+            printf("\n-----------------------------------------------\n\n");
             imprimir(filaDecolar);
         }
     }while(i!=2);
