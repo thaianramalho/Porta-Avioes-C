@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <locale.h>
 
 typedef struct{
     int id;
@@ -42,13 +43,6 @@ void enfileirar(TipoFila *fila, TipoAviao aviao){
 
 }
 
-
-apontador* desenfileirar(TipoFila *fila){
-    apontador aux = fila->primeiro->prox;
-    fila->primeiro->prox = aux->prox;
-    return aux;
-    }
-
 void imprimir(TipoFila fila){
     apontador aux = fila.primeiro->prox;
     while(aux!=NULL){
@@ -80,126 +74,129 @@ int verificarID(TipoFila fila, int id){
     return 0;
 }
 
-void zerar(TipoFila *fila){
-    apontador aux;
-    aux = fila->primeiro;
-    while(aux->prox != NULL){
-        apontador excluir = desenfileirar(fila);
-        free(excluir);
-    }
-    criar(fila);
-}
+int ultimoId = 0;
+int contadorEmergencia = 0;
 
 void CadastroLote(TipoFila *filaPouso, TipoFila *filaDecolar){
     TipoAviao aviao;
-    int idImpar = 1;
-    int idPar = 2;
     int prioridade;
     int emergencia;
-
-
     int sorteio = rand() % 3;
     printf("Fila de pouso:\n");
+    printf("Emergencias atendidas: [%d]\n", contadorEmergencia);
+    printf("Sorteio:%d \n",sorteio);
     for(int i = 0; i < sorteio; i++){
         prioridade = 2;
         emergencia = rand() % 12;
 
         if (emergencia > 9){
             prioridade = 1;
+            contadorEmergencia++;
         }
 
-        while (verificarID(*filaPouso, idImpar)) {
-            idImpar += 2;
+        ultimoId++;
+        while (verificarID(*filaPouso, ultimoId) || verificarID(*filaDecolar, ultimoId)) {
+            ultimoId++;
         }
-    printf("Sorteio:%d --- ID:%d\n\n",sorteio,idImpar);
+        printf("ID: [%d]\n",ultimoId);
 
-        aviao.id = idImpar; // ID da fila de pouso sempre ímpar
+        aviao.id = ultimoId;
         aviao.prioridade = prioridade;
         enfileirar(filaPouso, aviao);
-        idImpar += 2; // incrementa o ID após a atribuição
     }
 
     sorteio = rand() % 3;
     printf("Fila de decolagem:\n");
+    printf("Sorteio:%d \n",sorteio);
     for(int i = 0; i < sorteio; i++){
         prioridade = 2;
-        emergencia = rand() % 12;
 
-        if (emergencia > 9){
-            prioridade = 1;
+        ultimoId++;
+        while (verificarID(*filaPouso, ultimoId) || verificarID(*filaDecolar, ultimoId)) {
+            ultimoId++;
         }
 
-        while (verificarID(*filaDecolar, idPar)) {
-            idPar += 2;
-        }
-    printf("Sorteio:%d --- ID:%d\n\n",sorteio,idPar);
+        printf("ID: [%d]\n",ultimoId);
 
-        aviao.id = idPar; // ID da fila de decolagem sempre par
+        aviao.id = ultimoId;
         aviao.prioridade = prioridade;
         enfileirar(filaDecolar, aviao);
-        idPar += 2; // incrementa o ID após a atribuição
+    }
+}
+int contadorDesenfileirar = 0;
+
+void desenfileirar(TipoFila *fila1, TipoFila *fila2){
+    int count = 0;
+    apontador *aux = &(fila1->primeiro->prox);
+    apontador *aux2 = &(fila2->primeiro->prox);
+
+    while(count < 3 && *aux != NULL){
+        if((*aux)->aviao.prioridade == 1){
+            printf("Desenfileirando: [%d] - Prioridade: %d -- Pista: [%d]\n", (*aux)->aviao.id, (*aux)->aviao.prioridade, count+1);
+            apontador temp = *aux;
+            *aux = temp->prox;
+            free(temp);
+            contadorDesenfileirar++;
+            count++;
+        }else{
+            aux = &((*aux)->prox);
+        }
+    }
+
+    while(count < 3 && (fila1->primeiro->prox != NULL || fila2->primeiro->prox != NULL)){
+        int aleatorio = rand() % 2;
+        if((aleatorio == 0 && fila1->primeiro->prox != NULL) || fila2->primeiro->prox == NULL){
+            printf("Desenfileirando avião [%d] - Prioridade: %d -- Pista: [%d]\n", fila1->primeiro->prox->aviao.id, fila1->primeiro->prox->aviao.prioridade, count+1);
+            apontador temp = fila1->primeiro->prox;
+            fila1->primeiro->prox = temp->prox;
+            free(temp);
+        }else{
+            printf("Desenfileirando avião [%d] - Prioridade: %d -- Pista: [%d]\n", fila2->primeiro->prox->aviao.id, fila2->primeiro->prox->aviao.prioridade, count+1);
+            apontador temp = fila2->primeiro->prox;
+            fila2->primeiro->prox = temp->prox;
+            free(temp);
+        }
+        contadorDesenfileirar++;
+        count++;
     }
 }
 
 
 
-
- /*   do{
-        id = rand()%50;
-        prioridade = 2;
-        emergencia = rand()%12;
-
-        if (emergencia > 9){
-            prioridade = 1;
-        }
-
-        if(id % 2 == 0 ){
-            if(verificarID(*filaDecolar, id) == 0){
-                aviao.id = id;
-                aviao.prioridade = prioridade;
-                enfileirar(filaDecolar, aviao);
-                aux1++;
-            }
-        }else{
-            if(verificarID(*filaPouso, id) == 0){
-            aviao.id = id;
-            aviao.prioridade = prioridade;
-            enfileirar(filaPouso, aviao);
-            aux2++;
-            }
-        }
-
-    }while(aux1 <= 3 && aux2 <= 3);
-*/
-
 int main(){
     srand(time(NULL));
+    setlocale(LC_ALL, "Portuguese");
 
     TipoFila filaDecolar;
     TipoFila filaPouso;
-    TipoAviao aviao;
 
     criar(&filaDecolar);
     criar(&filaPouso);
-    int id = 1;
-    //CadastroLote(&filaPouso, &filaDecolar);
     int i = 0;
+    char ch;
     do{
-        printf("Aperte o numero 1 para inserir na fila. 2 para sair.\n");
-        scanf("%d", &i);
-        if(i == 1){
+        printf("[ENTER]\n");
+        ch=fgetc(stdin);
+        if(ch==0x0A){
+            system("cls");
             CadastroLote(&filaPouso, &filaDecolar);
+            printf("\n----- FILA DE ATERRISSAGEM -----\n");
             imprimir(filaPouso);
-            printf("\n-----------------------------------------------\n\n");
+            printf("\n----- FIM DA FILA DE ATERRISSAGEM -----\n");
+            printf("\n----- FILA DE DECOLAGEM -----\n");
             imprimir(filaDecolar);
-        }
-    }while(i!=2);
+            printf("\n----- FIM DA FILA DE DECOLAGEM -----\n");
 
+            desenfileirar(&filaPouso, &filaDecolar);
+            printf("Aviões atendidos: [%d]\n", contadorDesenfileirar);
+            }
+    }while(ch == 0x0A);
 
+return 0;
 
-
-    return 0;
 }
+
+
 
 
 
